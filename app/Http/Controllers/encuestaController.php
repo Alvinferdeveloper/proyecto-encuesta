@@ -29,7 +29,6 @@ class encuestaController extends Controller
 
     public function procesarEncuesta(Request $request){
         $preguntas = Preguntas::all();
-        $object = new stdClass();
         $user = Auth::user();
         foreach($preguntas as $pregunta){
             $respuestaDoc = null;
@@ -75,13 +74,38 @@ class encuestaController extends Controller
 
        foreach($posibleRespuestas as $posibleRespuesta){
         $opcionCantidadRespuesta = Respuestas::where('posible_respuesta_id', $posibleRespuesta->id)->count();
-        $porcentajes[$posibleRespuesta->id] = ($opcionCantidadRespuesta/$cantidadRespuestas) * 100;
+        $porcentajes[$posibleRespuesta->id] =($cantidadRespuestas == 0) ? 0: ($opcionCantidadRespuesta/$cantidadRespuestas) * 100;
        }
-        return view('pregunta')->with('pregunta', $pregunta)->with('porcentajes', $porcentajes)->with('posiblesRespuestas',$posibleRespuestas)->with('cantidadRespuestas', $cantidadRespuestas);
+
+       $labels = array();
+       foreach ($posibleRespuestas as $posibleRespuesta){
+        $labels[] = $posibleRespuesta->posible_respuesta;
+       }
+       
+     
+        return view('pregunta')->with('pregunta', $pregunta)->with('porcentajes', $porcentajes)->with('posiblesRespuestas',$posibleRespuestas)->with('cantidadRespuestas', $cantidadRespuestas)->with('labels',$labels);
     }
 
     public function respuestaUsuario($id){
         $encuestado = Encuestados::with(['respuestas.pregunta','facultad'])->where('id', $id)->first();
         return view('respuestaUsuario')->with('encuestado', $encuestado);
+    }
+
+    public function usuariosEncuestados(){
+        $usuarios = Encuestados::all();
+        $usuariosEncuestados = array();
+        foreach($usuarios as $usuario){
+            if(Respuestas::where('encuestado_id', $usuario->id)->first()){
+                $usuariosEncuestados[] = $usuario;
+            }
+        }
+
+        return view('usuariosEncuestados')->with('usuarios', $usuariosEncuestados);
+    }
+
+    public function eliminarRespuesta($id){
+        if(Auth::user()->role != 'ADMIN') return redirect()->intended('encuesta');
+        Respuestas::where('encuestado_id', $id)->delete();
+        return redirect()->back();
     }
 }

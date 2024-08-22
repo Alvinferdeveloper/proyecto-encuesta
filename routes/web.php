@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [encuestaController::class, 'dashboard']);
     Route::get('/pregunta/{id}', [encuestaController::class, 'preguntaEstadistica']);
     Route::get('/respuestaUsuario/{id}', [encuestaController::class, 'respuestaUsuario']);
+    Route::get('/usuariosEncuestados', [encuestaController::class, 'usuariosEncuestados']);
+    Route::get('/eliminarRespuesta/{id}', [encuestaController::class, 'eliminarRespuesta']);
    
 });
 

@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <style>
    .pregunta {
@@ -59,6 +60,7 @@
 </style>
 <body class="">
   <div class="pregunta">
+    <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"><a href="/dashboard" class="">Volver</a></button>
     <h2>Pregunta:<span>{{$pregunta->pregunta}}</span></h2>
 
     <h3>Cantidad de respuestas: <span>{{$cantidadRespuestas}}</span></h3>
@@ -77,8 +79,64 @@
        @endif
       </ul>
     </div>
-  </div>
     
-   
+  @if(count($posiblesRespuestas) != 0)
+  <div class="container">
+    <h2>Mi Gráfico de Barras</h2>
+    <canvas id="miGraficoBarras"></canvas>
+</div>
+</div>
+  <script>
+    const ctx = document.getElementById('miGraficoBarras').getContext('2d');
+    const labels = @json($labels);
+    const posiblesRespuestas = @json($posiblesRespuestas);
+    const porcentajes = @json($porcentajes);
+    let data  = [];
+
+    for(let posibleRespuesta of posiblesRespuestas){
+      data.push(porcentajes[posibleRespuesta.id])
+    }
+    const miGraficoBarras = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ventas',
+                data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max:100,
+                    ticks:{
+                      callback: function(value){
+                        return value + "%"
+                      }
+                    }
+                }
+            }
+        }
+    });
+</script>
+@endif
 </body>
 </html>

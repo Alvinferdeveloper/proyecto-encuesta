@@ -55,6 +55,10 @@ class authController extends Controller
         if($userExist != null){
             return redirect()->back()->with('userExist', 'El usuario con este carnet ya existe');
         }
+        $userExist = Encuestados::where('correo',$email)->first();
+        if($userExist){
+            return redirect()->back()->with('userExist', 'El usuario con este correo ya existe');
+        }
             $user = Encuestados::create([
                 'nombres' => $nombre,
                 'apellidos' => $apellido,
